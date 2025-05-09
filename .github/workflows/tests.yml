@@ -1,23 +1,29 @@
 name: Tests
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        php: [ 7.4, 8.0, 8.1, 8.2 ]
-        laravel: [ 8.*, 9.*, 10.*, 11.* ]
+        php: [7.4, 8.0, 8.1, 8.2, 8.3]
+        laravel: [8.*, 9.*, 10.*, 11.*, 12.*]
         exclude:
           - php: 8.1
+            laravel: 12.*
+          - php: 8.1
             laravel: 11.*
+          - php: 8.0
+            laravel: 12.*
           - php: 8.0
             laravel: 11.*
           - php: 8.0
             laravel: 10.*
+          - php: 7.4
+            laravel: 12.*
           - php: 7.4
             laravel: 11.*
           - php: 7.4
@@ -25,6 +31,8 @@ jobs:
           - php: 7.4
             laravel: 9.*
         include:
+          - laravel: 12.*
+            testbench: 10.*
           - laravel: 11.*
             testbench: 9.*
           - laravel: 10.*
@@ -35,7 +43,7 @@ jobs:
             testbench: 6.*
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -44,7 +52,7 @@ jobs:
           extensions: curl, mbstring, pdo, sqlite, pdo_sqlite
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.composer/cache/files
           key: dependencies-stable-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
