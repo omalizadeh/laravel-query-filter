@@ -250,12 +250,22 @@ class QueryFilter
 
     protected function applyPagination(): Builder
     {
-        if (!$this->getFilter()->hasLimit() || $this->getFilter()->getLimit() > $this->getModelFilter()->getMaxPaginationLimit()) {
-            $this->getFilter()->setLimit($this->getModelFilter()->getMaxPaginationLimit());
+        $maxLimit = $this->getModelFilter()->getMaxPaginationLimit();
+
+        if (
+            $maxLimit === -1
+            && !$this->getFilter()->hasOffset()
+            && !$this->getFilter()->hasLimit()
+        ) {
+            return $this->getBuilder();
         }
 
         if (!$this->getFilter()->hasOffset()) {
             $this->getFilter()->setOffset(0);
+        }
+
+        if (!$this->getFilter()->hasLimit() || $this->getFilter()->getLimit() > $maxLimit) {
+            $this->getFilter()->setLimit($maxLimit);
         }
 
         return $this->paginate();
